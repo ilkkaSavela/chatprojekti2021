@@ -186,20 +186,22 @@ body {
     display: inline-block;
     background-color: rgba(51,65,92,0.7);
     padding: 30px;
-    width: 240px;
+    width: 400px;
+    height: 300px;
     right: 60px;
-    top: 180px;
     broder-radius: 10px;
 }
 #log div {
     position: relative;
-    display:flex;
     height: 40px;
-    width: 170px;
-    margin: 20px auto;
+    width: 300px;
+    margin: 40px auto;
     text-align: center;
     cursor: default;
     background-color: rgba(151,157,172,0.8);
+}
+.btn {
+    margin: 30px auto;
 }
 #log div:hover {
     background-color: rgba(151,157,172,1);
