@@ -268,12 +268,13 @@ app.use('/register', function(req, res, next) {
 
   con.query('SELECT * FROM users WHERE user_name = ?', data[0],
       (err, result) => {
+    if (result != undefined) {
         if (result.length > 0) {
           res.cookie('show_messages', 1);
           res.cookie('messages', 'Käyttäjänimi on varattu.');
           res.redirect('/');
         }
-      });
+      }});
   const hashedpass = passwordHash.generate(data[1]);
   con.query('INSERT into users (user_name, password) VALUES (?,?)',
       [data[0], hashedpass],

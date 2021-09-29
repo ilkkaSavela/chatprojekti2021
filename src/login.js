@@ -1,3 +1,4 @@
+import './landingpage.css';
 import React, {useState} from 'react';
 import {Form} from 'react-bootstrap';
 import {Button} from 'react-bootstrap';
@@ -58,28 +59,103 @@ const Login = () => {
     setValidated(true);
   };
 
-  return (
-      <Form noValidate validated={validated} onSubmit={handleSubmit}>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-      <Form.Label>Email address:</Form.Label>
-  <Form.Control type="email" value={newEmail}
-  onChange={handleEmailChange} required/>
-  <Form.Control.Feedback type="invalid">Please enter a valid
-  email!</Form.Control.Feedback>
-  </Form.Group>
+  /*  return (
+        <div>
+          <div id="header">
+            <img src="/Img/logo_transparent.png"/>
+            <div className="dropdown">
+              <div id="chat_drop_button"><img
+                  src="/img/iconfinder_multimedia-24_2849812.png"></div>
+              <div id="dropdown_content">
+                <a href="/chat">Chat-sivu</a>
+              </div>
+            </div>
+          </div>
+          <div id="main">
+            <div id="facts">
+              <h1 id="text">Hei, <br> tervetuloa käyttämään chat-sovellusta.
+                Aloita
+                viestittely rekisteröitymällä ensin sivulle, jonka jälkeen pystyt
+                kirjautumaan itse sovellukseen.</h1>
+            </div>
 
-  <Form.Group className="mb-3" controlId="formBasicPassword">
-      <Form.Label>Password:</Form.Label>
-  <Form.Control type="password" value={newPassword}
-  onChange={handlePasswordChange} required/>
-  <Form.Control.Feedback type="invalid">Please enter a valid
-  password!</Form.Control.Feedback>
-  </Form.Group>
-  <Button variant="primary" type="submit">
-      Submit
-      </Button>
-      </Form>
+            <div id="log">
+              <Form noValidate validated={validated} onSubmit={handleSubmit}>
+                <Form.Group className="mb-3" controlId="formBasicText">
+                  <Form.Label>Username:</Form.Label>
+                  <Form.Control type="text" value={newEmail}
+                                onChange={handleEmailChange} required/>
+                  <Form.Control.Feedback type="invalid">Please enter a valid
+                    username!</Form.Control.Feedback>
+                </Form.Group>
+
+                <Form.Group className="mb-3" controlId="formBasicPassword">
+                  <Form.Label>Password:</Form.Label>
+                  <Form.Control type="password" value={newPassword}
+                                onChange={handlePasswordChange} required/>
+                  <Form.Control.Feedback type="invalid">Please enter a valid
+                    password!</Form.Control.Feedback>
+                </Form.Group>
+                <Button variant="primary" type="submit">
+                  Submit
+                </Button>
+              </Form>
+            </div>
+          </div>
+
+          )
+  }
+
+   */
+  return (
+      <div class="bg-image">
+        <div id="header">
+          <img src="/img/logo_transparent.png"/>
+          <div className="dropdown">
+            <div id="chat_drop_button"><img
+                src="./img/iconfinder_multimedia-24_2849812.png"/></div>
+            <div id="dropdown_content">
+              <a href="/chat">Chat-sivu</a>
+            </div>
+          </div>
+        </div>
+
+        <div id="main">
+          <div id="facts">
+            <h1 id="text">Hei, <br/> tervetuloa käyttämään chat-sovellusta.
+              Aloita
+              viestittely rekisteröitymällä ensin sivulle, jonka jälkeen pystyt
+              kirjautumaan itse sovellukseen.</h1>
+          </div>
+          <div id="log">
+          <Form noValidate validated={validated} onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Label>Email address:</Form.Label>
+              <Form.Control type="email" value={newEmail}
+                            onChange={handleEmailChange} required/>
+              <Form.Control.Feedback type="invalid">Please enter a valid
+                email!</Form.Control.Feedback>
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="formBasicPassword">
+              <Form.Label>Password:</Form.Label>
+              <Form.Control type="password" value={newPassword}
+                            onChange={handlePasswordChange} required/>
+              <Form.Control.Feedback type="invalid">Please enter a valid
+                password!</Form.Control.Feedback>
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          </Form>
+          </div>
+        </div>
+        <div id="author">
+          <img className="picture" src="/img/Kuva_Elias.jpeg"/>
+            <img className="picture" src="img/kuva_ilkka.jpeg"/>
+              <img className="picture" src="img/Kuva_Aleksi.jpeg"/>
+        </div>
+      </div>
 );
 };
-
-export default Login;
+export default Login
