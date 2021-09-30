@@ -49,6 +49,7 @@ console.log('lähetetään lomake')
         if (json.accessToken !== null) { // something found
           localStorage.setItem(tokenKey, json.accessToken);
           console.log('Käyttäjä löydetty! ' + json.accessToken);
+
         } else {
           xmlhttp.open('POST', 'http://localhost:8080/api/register', true);
           xmlhttp.setRequestHeader('Content-Type', 'application/json');
@@ -66,11 +67,11 @@ console.log('lähetetään lomake')
   };
 
   return (
-      <div class="bg-image">
+      <div className="bg-image">
         <div id="header">
-          <img src="/img/logo_transparent.png"/>
+          <img alt="" src="/img/logo_transparent.png"/>
           <div className="dropdown">
-            <div id="chat_drop_button"><img
+            <div id="chat_drop_button"><img alt=""
                 src="./img/iconfinder_multimedia-24_2849812.png"/></div>
             <div id="dropdown_content">
               <a href="/chat">Chat-sivu</a>
@@ -109,9 +110,9 @@ console.log('lähetetään lomake')
           </div>
         </div>
         <div id="author">
-          <img className="picture" src="/img/Kuva_Elias.jpeg"/>
-            <img className="picture" src="img/kuva_ilkka.jpeg"/>
-              <img className="picture" src="img/Kuva_Aleksi.jpeg"/>
+          <img className="picture" alt="" src="/img/Kuva_Elias.jpeg"/>
+            <img className="picture" alt="" src="img/kuva_ilkka.jpeg"/>
+              <img className="picture" alt="" src="img/Kuva_Aleksi.jpeg"/>
         </div>
       </div>
 );

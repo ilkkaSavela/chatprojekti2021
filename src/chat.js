@@ -1,4 +1,4 @@
-import './chatstyle.css';
+//import './chatstyle.css';
 import React, {useState} from 'react';
 import {Form} from 'react-bootstrap';
 
@@ -12,8 +12,8 @@ const Chat = () => {
             <a href="/chat">Chat-sivu</a>
           </div>
         </div>
-      </div>
-      /*<div id="chat_history">
+
+      <div id="chat_history">
       <h4>Edelliset keskustelut</h4>
   <div id="contacts">
   </div>
@@ -28,13 +28,14 @@ const Chat = () => {
 <div id="new_message">
 <form id="new_message_form">
 <input id="receiver_sending" name="receiver" type="hidden" value="2"/>
-<textarea id="uusiviesti_sisalto" name="message" rows="2" style="color: white; font-size: larger">
+<textarea id="uusiviesti_sisalto" name="message" rows="2" >
 
 </textarea>
 <input id="send_new_message" type="submit"/>
 </form>
 </div>
-*/
+      </div>
+
 );
 };
         export default Chat
