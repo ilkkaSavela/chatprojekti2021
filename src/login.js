@@ -21,15 +21,21 @@ const Login = () => {
     setNewPassword(event.target.value);
   };
 
-  const handleSubmit = event => {
+  const validityChecker = (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
+      console.log("invalid")
       event.preventDefault();
       event.stopPropagation();
+    }else {
+      handleSubmit(event)
     }
+    setValidated(true);
 
-    event.preventDefault();
-    event.stopPropagation();
+  }
+
+  const handleSubmit = event => {
+console.log('lähetetään lomake')
     const userObject = {
       email: newEmail,
       password: newPassword,
@@ -59,54 +65,6 @@ const Login = () => {
     setValidated(true);
   };
 
-  /*  return (
-        <div>
-          <div id="header">
-            <img src="/Img/logo_transparent.png"/>
-            <div className="dropdown">
-              <div id="chat_drop_button"><img
-                  src="/img/iconfinder_multimedia-24_2849812.png"></div>
-              <div id="dropdown_content">
-                <a href="/chat">Chat-sivu</a>
-              </div>
-            </div>
-          </div>
-          <div id="main">
-            <div id="facts">
-              <h1 id="text">Hei, <br> tervetuloa käyttämään chat-sovellusta.
-                Aloita
-                viestittely rekisteröitymällä ensin sivulle, jonka jälkeen pystyt
-                kirjautumaan itse sovellukseen.</h1>
-            </div>
-
-            <div id="log">
-              <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                <Form.Group className="mb-3" controlId="formBasicText">
-                  <Form.Label>Username:</Form.Label>
-                  <Form.Control type="text" value={newEmail}
-                                onChange={handleEmailChange} required/>
-                  <Form.Control.Feedback type="invalid">Please enter a valid
-                    username!</Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mb-3" controlId="formBasicPassword">
-                  <Form.Label>Password:</Form.Label>
-                  <Form.Control type="password" value={newPassword}
-                                onChange={handlePasswordChange} required/>
-                  <Form.Control.Feedback type="invalid">Please enter a valid
-                    password!</Form.Control.Feedback>
-                </Form.Group>
-                <Button variant="primary" type="submit">
-                  Submit
-                </Button>
-              </Form>
-            </div>
-          </div>
-
-          )
-  }
-
-   */
   return (
       <div class="bg-image">
         <div id="header">
@@ -128,7 +86,7 @@ const Login = () => {
               kirjautumaan itse sovellukseen.</h1>
           </div>
           <div id="log">
-          <Form noValidate validated={validated} onSubmit={handleSubmit}>
+          <Form noValidate validated={validated} onSubmit={validityChecker}>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Email address:</Form.Label>
               <Form.Control type="email" value={newEmail}

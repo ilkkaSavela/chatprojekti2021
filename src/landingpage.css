@@ -133,8 +133,8 @@ body {
 /* Dropdown menu */
 
 .dropdown {
-    position: relative;
-    left: 1336px;
+    position: absolute;
+    right: 100px;
     top: 0;
     display: inline-block;
 }

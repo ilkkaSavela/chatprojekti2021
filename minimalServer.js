@@ -95,7 +95,7 @@ app.post('/api/register', function(req, res) {
   const jsonObj = req.body;
   console.log('Jsonobjekti: ' + jsonObj);
 
-  let sqlquery = 'INSERT INTO users (user_name, password) VALUES (?, ?)';
+  let sqlquery = 'INSERT INTO users (email, password) VALUES (?, ?)';
   (async () => {
     try {
       hashedPw = await bcrypt.hash(jsonObj.password, saltRounds);
@@ -115,9 +115,9 @@ app.get('/api/login', function (req, res){
   let alteredResult;
   let string;
 
-  let sql = "SELECT users.user_name, users.password"
+  let sql = "SELECT users.email, users.password"
       + " FROM users"
-      + " WHERE users.user_name = ?";
+      + " WHERE users.email = ?";
 
   // eslint-disable-next-line no-undef
   const query = util.promisify(conn.query).bind(conn);
@@ -160,7 +160,7 @@ app.get('/api/login', function (req, res){
 
 });
 
-const server = app.listen(8080, function() {
+const server = app.listen(8080, "localhost", function() {
   const host = server.address().address;
   const port = server.address().port;
 
