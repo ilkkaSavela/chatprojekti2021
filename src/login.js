@@ -1,7 +1,9 @@
-import './landingpage.css';
+//import './landingpage.css';
 import React, {useState} from 'react';
+import { Helmet } from 'react-helmet';
 import {Form} from 'react-bootstrap';
 import {Button} from 'react-bootstrap';
+import {Link} from 'react-router-dom';
 
 let json;
 let tokenKey = 'myToken';
@@ -67,7 +69,11 @@ console.log('lähetetään lomake')
   };
 
   return (
+
       <div className="bg-image">
+        <Helmet>
+          <link rel="stylesheet" href="/css/landingpage.css" />
+        </Helmet>
         <div id="header">
           <img alt="" src="/img/logo_transparent.png"/>
           <div className="dropdown">
