@@ -103,7 +103,7 @@ console.log('lähetetään lomake')
                 password!</Form.Control.Feedback>
             </Form.Group>
             <Button variant="primary" type="submit">
-              Submit
+              Login
             </Button>
           </Form>
           </div>
