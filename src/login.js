@@ -1,12 +1,23 @@
 //import './landingpage.css';
-import React, {useState} from 'react';
+import
+React, {useState} from 'react';
 import { Helmet } from 'react-helmet';
 import {Form} from 'react-bootstrap';
 import {Button} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
+import * as PropTypes from 'prop-types';
+
 
 let json;
 let tokenKey = 'myToken';
+
+class Redirect extends React.Component {
+  render() {
+    return null;
+  }
+}
+
+Redirect.propTypes = {to: PropTypes.string};
 const Login = () => {
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -37,7 +48,7 @@ const Login = () => {
   }
 
   const handleSubmit = event => {
-console.log('lähetetään lomake')
+    console.log('lähetetään lomake')
     const userObject = {
       email: newEmail,
       password: newPassword,
@@ -51,11 +62,15 @@ console.log('lähetetään lomake')
         if (json.accessToken !== null) { // something found
           localStorage.setItem(tokenKey, json.accessToken);
           console.log('Käyttäjä löydetty! ' + json.accessToken);
+          alert('Kirjauduttu');
+          window.location.href = '/chat'
 
         } else {
           xmlhttp.open('POST', 'http://localhost:8080/api/register', true);
           xmlhttp.setRequestHeader('Content-Type', 'application/json');
           xmlhttp.send(JSON.stringify(userObject));
+          alert('Käyttäjä luotu');
+          window.location.href = '/chat'
         }
       }
     };
@@ -66,6 +81,7 @@ console.log('lähetetään lomake')
     xmlhttp.send();
 
     setValidated(true);
+    event.preventDefault();
   };
 
   return (
@@ -88,26 +104,22 @@ console.log('lähetetään lomake')
         <div id="main">
           <div id="facts">
             <h1 id="text">Hei, <br/> tervetuloa käyttämään chat-sovellusta.
-              Aloita
-              viestittely rekisteröitymällä ensin sivulle, jonka jälkeen pystyt
-              kirjautumaan itse sovellukseen.</h1>
+              Aloita käyttäminen kirjoittamalla oma sähköposti osoitteesi sekä haluamasi salasana sivulle, jonka jälkeen sinut ohjataan chat-sivulle. </h1>
           </div>
           <div id="log">
           <Form noValidate validated={validated} onSubmit={validityChecker}>
             <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Email address:</Form.Label>
+              <Form.Label>Sähköposti:</Form.Label>
               <Form.Control type="email" value={newEmail}
                             onChange={handleEmailChange} required/>
-              <Form.Control.Feedback type="invalid">Please enter a valid
-                email!</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">Anna oikea sähköposti osoite!</Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPassword">
-              <Form.Label>Password:</Form.Label>
+              <Form.Label>Salasana:</Form.Label>
               <Form.Control type="password" value={newPassword}
                             onChange={handlePasswordChange} required/>
-              <Form.Control.Feedback type="invalid">Please enter a valid
-                password!</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">Väärä salasana</Form.Control.Feedback>
             </Form.Group>
             <Button variant="primary" type="submit">
               Login
