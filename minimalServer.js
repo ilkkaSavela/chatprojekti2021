@@ -159,6 +159,33 @@ app.get('/api/login', function (req, res){
   })()
 
 });
+app.post('/api/messages', function(req, res) {
+  console.log('Uusi viesti lähetetty');
+  const query = util.promisify(conn.query).bind(conn);
+  const message = req.body;
+  console.log(message);
+  //console.log(req.signedCookies.userID);
+  (async () => {
+    try {
+
+      const sqlquery = 'INSERT INTO data (sender, receiver, message, received)'
+          + 'VALUES (?, ?, ?, ?)';
+      await query(sqlquery,
+          [message.sender, message.receiver, message.message, 0]);
+      muutuunut = true;
+      res.sendStatus(202);
+
+    } catch (err) {
+      console.log('Database error!' + err);
+    } finally {
+
+    }
+
+  })
+  ();
+});
+
+
 
 const server = app.listen(8080, "localhost", function() {
   const host = server.address().address;
