@@ -62,6 +62,12 @@ const Chat = () => {
         };
         setNewMessage('');
     };
+    
+    function logout() {
+      localStorage.clear();
+      window.location.href = '/';
+      alert('Olet kirjautunut ulos ja sinut ohjataan etusivulle')
+    }
 
 
 
