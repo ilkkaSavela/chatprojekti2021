@@ -1,7 +1,7 @@
 //import './chatstyle.css';
 import React, {useState} from 'react';
 import { Helmet } from 'react-helmet';
-import {Form} from 'react-bootstrap';
+import {Button, Form} from 'react-bootstrap';
 
 const Chat = () => {
 
@@ -72,8 +72,7 @@ const Chat = () => {
           <link rel="stylesheet" href="/css/chatstyle.css"/>
         </Helmet>
         <div className="dropdown">
-          <div id="chat_drop_button"><img
-              src="./img/iconfinder_multimedia-24_2849812.png"/></div>
+          <div id="chat_drop_button" />
           <div id="dropdown_content">
             <a href="/chat">Chat-sivu</a>
           </div>
@@ -93,10 +92,14 @@ const Chat = () => {
 
         <div id="new_message">
           <Form noValidate validated={validated} onSubmit={validityChecker} id="new_message_form">
+            <Form.Group>
+              <Form.Control type="text" value={newMessage} onChange={handleMessageChange}></Form.Control>
+            </Form.Group>
             <input id="receiver_sending" name="receiver" type="hidden"
                    value="2"/>
-            <textarea id="uusiviesti_sisalto" name="message" rows="2" onChange={handleMessageChange} />
-            <input id="send_new_message" type="submit"/>
+            {//<textarea id="uusiviesti_sisalto" name="message" rows="2" onChange={handleMessageChange} />
+              }
+            <Button id="send_new_message" type="submit">Lähetä</Button>
           </Form>
         </div>
       </div>

@@ -1,16 +1,19 @@
 /* chat-page */
 
 body, html {
-    position: relative;
+    /*position: relative;
     width: 1440px;
     height: 1024px;
     margin: 0 auto 0 auto;
-    background: black;
+
+     */
+    background: red;
+    overflow: hidden;
 }
 .bg-image{
     position: absolute;
     width: 100%;
-    height: 1024px;
+    height: 100%;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -50,7 +53,7 @@ body, html {
 /* Dropdown menu */
 
 .dropdown {
-    position: relative;
+    position: absolute;
     left: 1336px;
     top: 0;
     display: inline-block;
@@ -106,9 +109,9 @@ body, html {
     background-color: rgba(51,65,92,0.5);
     position: absolute;
     width: 281px;
-    height: 910px;
+    height: 70%;
     left: 1159px;
-    top: 115px;
+    bottom: 50px;
 }
 
 /* Viestin lähetys */
@@ -120,7 +123,7 @@ body, html {
     width: 1160px;
     height: 105px;
     left: 0px;
-    top: 918px;
+    bottom: 50px;
 }
 
 #new_message form textarea {
@@ -135,13 +138,18 @@ body, html {
     border-radius: 10px;
 }
 
+#send_new_message {
+position: absolute;
+    height: 50px;
+    width: 70px;
+    top:25px;
+    right: 15px;
+    border-radius: 20px;
+}
+
 #new_message form input {
     position: absolute;
-    height: 85px;
-    width: 85px;
-    right: 10px;
-    top: 10px;
-    bottom: 10px;
+    height: 70px;
     border: none;
     border-radius: 85px;
     background-color: rgba(51,65,92,0.8);
