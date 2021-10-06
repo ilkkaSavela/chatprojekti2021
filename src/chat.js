@@ -1,12 +1,169 @@
 //import './chatstyle.css';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Helmet } from 'react-helmet';
 import {Button, Form} from 'react-bootstrap';
+import axios from 'axios';
+
+let ajettu = false;
+let naytettavakontakti='';
+let contents;
 
 const Chat = () => {
 
+    ////////////////////////////// Testausta
+    const send_new_message = document.getElementById('send_new_message');
+    const messages_view = document.getElementById('messages');
+    const contact_view = document.getElementById('contacts');
+    const receiverID_sendmessage = document.getElementById('receiver_sending');
+    const newConversation_button = document.getElementById('new_conversation');
+    const menu_button = document.getElementById('chat_drop_button');
+    const contactslist = [];
+    let content;
+    let contact;
+
+    ///////////////////////////////////////////
+
+
+
+
     const [newMessage, setNewMessage] = useState('');
     const [validated, setValidated] = useState(false);
+
+
+    const getMessages = () => {
+
+        /*const request = new XMLHttpRequest();
+
+        request.onreadystatechange = () => {
+            if (request.readyState === 4 && request.status === 200) {
+                //console.log(request.responseText);
+                const res = JSON.parse(request.responseText);
+                content = res;
+                console.log(res);
+                contactsToScreen(res);
+                messagesToScreen(res, undefined);
+                request.open('GET',
+                    `http://127.0.0.1:8080/api/messages`);
+                request.send();
+            } else if (request.readyState === 4 && request.status === 204) {
+                request.open('GET',
+                    `http://127.0.0.1:8080/api/messages`);
+                request.send();
+            }
+
+        };
+
+        request.open('GET',
+            `http://127.0.0.1:8080/api/Rmessages`);
+        request.send();*/
+
+        axios.get('http://127.0.0.1:8080/api/messages'
+        ).then(response => {
+            console.log(response.request.responseText);
+            const res = JSON.parse(response.request.responseText);
+            console.log(res)
+            //contactsToScreen(res)
+            messagesToScreen(res, 22)
+        });
+
+    };
+
+
+    /*
+        const contactsToScreen = (res) => {
+            res.map(message => {
+                if (Number(message.sender) === 1) {
+                    console.log('Message user Id: '+message.userid)
+                    //menu_button.innerHTML = `<span style="text-align: center">${message.message.sender}</span>`;
+                    if (!contactslist.find(
+                        (contact) => contact === message.message.receiver)) {
+                        const contactbar = document.createElement('div');
+                        contactbar.className = 'contactbar';
+                        contactbar.addEventListener('click', () => {
+                            messagesToScreen(content, message.message.receiver);
+                            receiverID_sendmessage.value = message.message.receiver;
+                            const lista = document.getElementsByClassName('contactbar-selected');
+                            for (let i=0;i<lista.length;i++) {
+                                lista[i].className = 'contactbar';
+                            }
+                            contactbar.className = 'contactbar-selected'
+                        });
+                        const contactName = document.createElement('h4');
+                        contactslist.push(message.message.receiver);
+                        contactName.innerText = message.message.receiver;
+                        contactbar.appendChild(contactName);
+                        contact_view.appendChild(contactbar);
+
+                    }
+
+                } else if (Number(message.sender) === 2) {
+                    //menu_button.innerHTML = `<span style="text-align: center">${message.message.receiver}</span>`;
+                    if (!contactslist.find((contact) => contact === message.message.sender)) {
+                        const contactbar = document.createElement('div');
+                        contactbar.className = 'contactbar';
+                        contactbar.addEventListener('click', () => {
+                            messagesToScreen(content, message.message.sender);
+                            receiverID_sendmessage.value = message.message.sender;
+                            const lista = document.getElementsByClassName('contactbar-selected');
+                            for (let i=0;i<lista.length;i++) {
+                                lista[i].className = 'contactbar';
+                            }
+                            contactbar.className = 'contactbar-selected'
+                        });
+                        const contactName = document.createElement('h4');
+                        contactslist.push(message.message.sender);
+                        contactName.innerText = message.message.sender;
+                        contactbar.appendChild(contactName);
+                        contact_view.appendChild(contactbar);
+                    }
+                }
+
+            });
+        };
+    */
+    const messagesToScreen = (res, lastcontact) => {
+        naytettavakontakti=lastcontact;
+        contents=res;
+        /* console.log('called to messages to screen ')
+         if (lastcontact) {
+             contact = lastcontact;
+         }
+         messages_view.innerHTML = '';
+         document.getElementById('messages');
+         res.map(message => {
+             if (Number(message.message.sender) === Number(contact) || Number(message.message.receiver) ===
+                 Number(contact)) {
+
+                 const messagebar = document.createElement('div');
+                 if (Number(message.sender) === 1) {
+                     messagebar.className = 'sentmessages';
+                 } else if (Number(message.sender) === 2) {
+                     messagebar.className = 'receivedmessages';
+                 }
+                 const messageText = document.createElement('p');
+                 messageText.innerText = message.message.message;
+                 messagebar.appendChild(messageText);
+                 messages_view.appendChild(messagebar);
+
+             }
+
+         });
+         //gotoBottom();
+         //getMessages();*/
+
+    };
+
+    useEffect(() => {
+        console.log("Exucute useEffect");
+        //getUserid();
+        if(!(ajettu)){
+            getMessages();
+            ajettu=true;
+        }
+
+
+
+    }, []);
 
 
     const validityChecker = (event) => {
@@ -41,8 +198,8 @@ const Chat = () => {
         if((newMessage!=='')){
             console.log("Lähetetään viesti: "+newMessage);
             const messageObject = {
-                sender: 1,
-                receiver: 2,
+                sender: 19,
+                receiver: 22,
                 message: newMessage,
             };
             let xmlhttp = new XMLHttpRequest();
@@ -62,17 +219,19 @@ const Chat = () => {
         };
         setNewMessage('');
     };
-    
+
+
     function logout() {
-      localStorage.clear();
-      window.location.href = '/';
-      alert('Olet kirjautunut ulos ja sinut ohjataan etusivulle')
+        localStorage.clear();
+        window.location.href = '/';
+        alert('Olet kirjautunut ulos ja sinut ohjataan etusivulle')
     }
 
 
 
 
     return (
+
       <div className="bg-image">
         <Helmet>
           <link rel="stylesheet" href="/css/chatstyle.css"/>
@@ -95,7 +254,13 @@ const Chat = () => {
           </div>
         </div>
 
-        <div id="messages"/>
+          <div id="messages">
+              {/* contents.map(message => (
+              <div className={'sentmessages'} >
+                  <p>{contents.map}</p>
+              </div>
+              ))}*/}
+          </div>
 
         <div id="new_message">
           <Form noValidate validated={validated} onSubmit={validityChecker} id="new_message_form">
@@ -110,4 +275,5 @@ const Chat = () => {
 
   );
 };
+
 export default Chat;

@@ -13,6 +13,9 @@ let jwt = require('jsonwebtoken');
 const saltRounds = 10;
 let hashedPw;
 
+//DEBUG muuttuja!!!/////////
+let muutuunut = false;
+
 let urlencodedParser = bodyParser.urlencoded({extended: false});
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json()); // for reading JSON
@@ -139,7 +142,7 @@ app.get('/api/login', function (req, res){
             accessToken = jwt.sign({name: email}, secrets.jwtSecret,
                 {expiresIn: "1h"}) // expires in one hour
             console.log(accessToken);
-
+            muutuunut=true;
           }
 
         });
@@ -186,7 +189,55 @@ app.post('/api/messages', function(req, res) {
   ();
 });
 
+app.get('/api/messages', function(req, res) {
+  console.log('API viestit kutsuttu');
+  console.log(19);
+  muutuunut = true;
+  const viesti = () => {
+    return new Promise((resolve, reject) => {
 
+      if (muutuunut) {
+        console.log('data muuttunut')
+        conn.query('SELECT * FROM data WHERE sender=? or receiver=?',
+            [19, 19],
+            function(err, result, fields) {
+              if (err) throw err;
+              if (result) {
+                resolve(result);
+              } else {
+                reject('dataa ei saada haettua')
+              }
+            });
+
+      }
+      setTimeout(() => {
+        reject('timeout');
+      }, 15000);
+    });
+  };
+  viesti().then((result) => {
+    const messages = [];
+    muutuunut = false;
+    result.map((message) => {
+      const sender = () => {
+        if (Number(message.sender) ===
+            Number(19)) {
+          return 1;
+        } else return 2;
+      };
+      messages.push({
+        'userid': 19,
+        'sender': sender(),
+        'message': message,
+      });
+    });
+
+    res.send(messages);
+  }).catch((reason)=> {
+    res.sendStatus(204);
+  })
+
+});
 
 const server = app.listen(8080, "localhost", function() {
   const host = server.address().address;
