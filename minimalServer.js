@@ -109,6 +109,7 @@ app.post('/api/register', function(req, res) {
 });
 
 app.get('/api/login', function (req, res){
+  console.log('testi')
   let q = url.parse(req.url, true).query;
   let email = q.email;
   let password = q.password;

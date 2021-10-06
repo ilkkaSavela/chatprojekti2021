@@ -1,7 +1,7 @@
 //import './chatstyle.css';
 import React, {useState} from 'react';
 import { Helmet } from 'react-helmet';
-import {Form} from 'react-bootstrap';
+import {Button, Form} from 'react-bootstrap';
 
 const Chat = () => {
 
@@ -61,23 +61,18 @@ const Chat = () => {
             xmlhttp.send(JSON.stringify(messageObject));
         };
         setNewMessage('');
-
     };
 
-  function logout() {
-    localStorage.clear();
-    window.location.href = '/';
-    alert('Olet kirjautunut ulos ja sinut ohjataan etusivulle')
-  }
-    return (
 
+
+
+    return (
       <div className="bg-image">
         <Helmet>
           <link rel="stylesheet" href="/css/chatstyle.css"/>
         </Helmet>
         <div className="dropdown">
-          <div id="chat_drop_button">
-          </div>
+          <div id="chat_drop_button" />
           <div id="dropdown_content">
             <a href="/">Etusivu</a>
             <a onClick={logout} >Kirjaudu ulos</a>
@@ -100,8 +95,9 @@ const Chat = () => {
           <Form noValidate validated={validated} onSubmit={validityChecker} id="new_message_form">
             <input id="receiver_sending" name="receiver" type="hidden"
                    value="2"/>
-            <textarea id="uusiviesti_sisalto" name="message" rows="2" onChange={handleMessageChange} />
-            <input id="send_new_message" type="submit"/>
+            {//<textarea id="uusiviesti_sisalto" name="message" rows="2" onChange={handleMessageChange} />
+              }
+            <Button id="send_new_message" type="submit">Lähetä</Button>
           </Form>
         </div>
       </div>
