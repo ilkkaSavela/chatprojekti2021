@@ -56,30 +56,55 @@ const Login = () => {
 
     let xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
-      if (xmlhttp.readyState === 4 && xmlhttp.status === 202) {
-        json = JSON.parse(xmlhttp.responseText);
-        console.log(json);
-        if (json.accessToken !== null) { // something found
-          localStorage.setItem(tokenKey, json.accessToken);
-          console.log('Käyttäjä löydetty! ' + json.accessToken);
-          alert('Kirjauduttu');
-          window.location.href = '/chat'
+      if (xmlhttp.readyState === 4) {
+        console.log(xmlhttp.status)
 
-        } else {
-          xmlhttp.open('POST', 'http://localhost:8080/api/register', true);
-          xmlhttp.setRequestHeader('Content-Type', 'application/json');
-          xmlhttp.send(JSON.stringify(userObject));
-          alert('Käyttäjä luotu');
-          window.location.href = '/chat'
+        switch (xmlhttp.status) {
+          case 201: //Uusi käyttäjä
+            json = JSON.parse(xmlhttp.responseText);
+            console.log(json);
+            if (json.accessToken !== null) { // something found
+              localStorage.setItem(tokenKey, json.accessToken);
+              console.log('Käyttäjä luotu! ' + json.accessToken);
+              alert('Käyttäjä luotu');
+              window.location.href = '/chat';
+            }
+            break;
+          case 202: // Kirjauduttu
+            json = JSON.parse(xmlhttp.responseText);
+            console.log(json);
+            if (json.accessToken !== null) { // something found
+              localStorage.setItem(tokenKey, json.accessToken);
+              console.log('Käyttäjä löydetty! ' + json.accessToken);
+              alert('Kirjauduttu');
+              window.location.href = '/chat'
+            }
+            break;
+          case 400: // Käyttäjän luonti ei onnistunut
+              alert('Virhe!')
+            break;
+          case 401: // Väärä salasana
+            console.log('väärä salasana')
+              alert('Väärä salasana')
+            break;
+
+          default:
+
+        }
+
+
         }
       }
-    };
 
+/*
     xmlhttp.open('GET',
         'http://localhost:8080/api/login?email=' + newEmail + '&password=' +
         newPassword, true);
-    xmlhttp.send();
+    xmlhttp.send(); */
 
+  xmlhttp.open('POST', 'http://localhost:8080/api/login', true);
+  xmlhttp.setRequestHeader('Content-Type', 'application/json');
+  xmlhttp.send(JSON.stringify(userObject));
     setValidated(true);
     event.preventDefault();
   };
