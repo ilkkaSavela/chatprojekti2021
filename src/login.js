@@ -110,14 +110,14 @@ const Login = () => {
           <Form noValidate validated={validated} onSubmit={validityChecker}>
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Sähköposti:</Form.Label>
-              <Form.Control type="email" value={newEmail}
+              <Form.Control type="email" value={newEmail}  placeholder="Anna sähköposti"
                             onChange={handleEmailChange} required/>
-              <Form.Control.Feedback type="invalid">Anna oikea sähköposti osoite!</Form.Control.Feedback>
+              <Form.Control.Feedback type="invalid">Anna oikea sähköposti osoite! </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPassword">
               <Form.Label>Salasana:</Form.Label>
-              <Form.Control type="password" value={newPassword}
+              <Form.Control type="password" value={newPassword} placeholder="salasana"
                             onChange={handlePasswordChange} required/>
               <Form.Control.Feedback type="invalid">Väärä salasana</Form.Control.Feedback>
             </Form.Group>

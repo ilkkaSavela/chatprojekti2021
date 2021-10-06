@@ -61,21 +61,26 @@ const Chat = () => {
             xmlhttp.send(JSON.stringify(messageObject));
         };
         setNewMessage('');
+
     };
 
-
-
-
+  function logout() {
+    localStorage.clear();
+    window.location.href = '/';
+    alert('Olet kirjautunut ulos ja sinut ohjataan etusivulle')
+  }
     return (
+
       <div className="bg-image">
         <Helmet>
           <link rel="stylesheet" href="/css/chatstyle.css"/>
         </Helmet>
         <div className="dropdown">
-          <div id="chat_drop_button"><img
-              src="./img/iconfinder_multimedia-24_2849812.png"/></div>
+          <div id="chat_drop_button">
+          </div>
           <div id="dropdown_content">
-            <a href="/chat">Chat-sivu</a>
+            <a href="/">Etusivu</a>
+            <a onClick={logout} >Kirjaudu ulos</a>
           </div>
         </div>
 
