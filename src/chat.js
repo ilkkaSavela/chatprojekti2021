@@ -124,9 +124,10 @@ const Chat = () => {
       if (test[i].sender === 1) {
         test[i].sender = 'sentmessages';
       } else {
-        contents[i].sender = 'receivedmessages';
+        test[i].sender = 'receivedmessages';
       }
     }
+    setContents(test);
     console.log(contents);
     // setContents(contents);
     /* console.log('called to messages to screen ')
