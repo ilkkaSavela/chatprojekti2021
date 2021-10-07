@@ -1,12 +1,12 @@
 //import './chatstyle.css';
 import React, {useEffect, useState} from 'react';
 import { Helmet } from 'react-helmet';
-import {Button, Form} from 'react-bootstrap';
+import {Button, Form, Table} from 'react-bootstrap';
 import axios from 'axios';
 
 let ajettu = false;
 let naytettavakontakti='';
-let contents;
+
 
 const Chat = () => {
 
@@ -28,7 +28,7 @@ const Chat = () => {
 
     const [newMessage, setNewMessage] = useState('');
     const [validated, setValidated] = useState(false);
-
+    const [contents, setContents] = useState([]);
 
     const getMessages = () => {
 
@@ -60,8 +60,8 @@ const Chat = () => {
         axios.get('http://127.0.0.1:8080/api/messages'
         ).then(response => {
             console.log(response.request.responseText);
-            const res = JSON.parse(response.request.responseText);
-            console.log(res)
+            const res = (response.request.responseText);
+            console.log((res))
             //contactsToScreen(res)
             messagesToScreen(res, 22)
         });
@@ -123,7 +123,17 @@ const Chat = () => {
     */
     const messagesToScreen = (res, lastcontact) => {
         naytettavakontakti=lastcontact;
-        contents=res;
+        let test = JSON.parse(res);
+        setContents(JSON.parse(res));
+        for (var i = 0; i < test.length; i++) {
+            if (test[i].sender === 1) {
+                test[i].sender = "sentmessages";
+            }else{
+                contents[i].sender = "receivedmessages";
+            }
+        }
+        console.log(contents)
+       // setContents(contents);
         /* console.log('called to messages to screen ')
          if (lastcontact) {
              contact = lastcontact;
@@ -163,7 +173,7 @@ const Chat = () => {
 
 
 
-    }, []);
+    }, );
 
 
     const validityChecker = (event) => {
@@ -253,13 +263,17 @@ const Chat = () => {
 
           </div>
         </div>
-
           <div id="messages">
-              {/* contents.map(message => (
-              <div className={'sentmessages'} >
-                  <p>{contents.map}</p>
-              </div>
-              ))}*/}
+
+
+                  {contents.map(result => {
+                      return(
+                          <div className={result.sender} ><p>{result.message.message}</p></div>
+                      )
+                  })}
+
+
+
           </div>
 
         <div id="new_message">
