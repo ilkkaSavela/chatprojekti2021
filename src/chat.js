@@ -278,7 +278,10 @@ const Chat = () => {
 
         <div id="new_message">
           <Form noValidate validated={validated} onSubmit={validityChecker} id="new_message_form">
-            <input id="receiver_sending" name="receiver" type="hidden"
+              <Form.Group>
+                  <Form.Control type="text" onChange={handleMessageChange} />
+              </Form.Group>
+            <Form.Control id="receiver_sending" name="receiver" type="hidden"
                    value="2"/>
             {//<textarea id="uusiviesti_sisalto" name="message" rows="2" onChange={handleMessageChange} />
               }
