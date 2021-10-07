@@ -65,6 +65,7 @@ const Login = () => {
             console.log(json);
             if (json.accessToken !== null) { // something found
               localStorage.setItem(tokenKey, json.accessToken);
+              localStorage.setItem('userID', json.userID);
               console.log('Käyttäjä luotu! ' + json.accessToken);
               alert('Käyttäjä luotu');
               window.location.href = '/chat';
@@ -75,6 +76,7 @@ const Login = () => {
             console.log(json);
             if (json.accessToken !== null) { // something found
               localStorage.setItem(tokenKey, json.accessToken);
+              localStorage.setItem('userID', json.userID);
               console.log('Käyttäjä löydetty! ' + json.accessToken);
               alert('Kirjauduttu');
               window.location.href = '/chat'

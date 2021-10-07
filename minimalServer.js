@@ -122,7 +122,7 @@ app.post('/api/login', function(req, res) {
   //let alteredResult;
   // let string;
 
-  const sql = 'SELECT users.email, users.password'
+  const sql = 'SELECT users.id, users.email, users.password'
       + ' FROM users'
       + ' WHERE users.email = ?';
 
@@ -141,11 +141,11 @@ app.post('/api/login', function(req, res) {
         bcrypt.compare(password, hashedPw, function(err, result) {
           if (result === true) {
             console.log('Salasana oikein');
-            accessToken = jwt.sign({name: email}, secrets.jwtSecret,
+            accessToken = jwt.sign({id: rows[0].id, email: email}, secrets.jwtSecret,
                 {expiresIn: '1h'}); // expires in one hour
             console.log(accessToken);
             muutuunut = true;
-            res.status(202).json({accessToken: accessToken});
+            res.status(202).json({accessToken: accessToken, userID: rows[0].id});
           } else {
             console.log('Salasana väärin');
             res.sendStatus(401);
@@ -157,10 +157,10 @@ app.post('/api/login', function(req, res) {
         const sqlquery = 'INSERT INTO users (email, password) VALUES (?, ?)';
           try {
             hashedPw = await bcrypt.hash(q.password, saltRounds);
-            await query(sqlquery, [q.email, hashedPw]);
-            accessToken = jwt.sign({name: email}, secrets.jwtSecret,
+            const newU = await query(sqlquery, [q.email, hashedPw]);
+            accessToken = jwt.sign({id: newU.id, email: newU.email}, secrets.jwtSecret,
                 {expiresIn: '1h'});
-            res.status(201).json({accessToken: accessToken});
+            res.status(201).json({accessToken: accessToken, userID: newU.id });
           } catch (e) {
             console.log(e);
             res.sendStatus(400);
@@ -183,13 +183,14 @@ app.post('/api/messages', function(req, res) {
   const message = req.body;
   console.log(message);
   //console.log(req.signedCookies.userID);
+  const sender_token = jwt.decode(message.token)
   (async () => {
     try {
 
       const sqlquery = 'INSERT INTO data (sender, receiver, message, received)'
           + 'VALUES (?, ?, ?, ?)';
       await query(sqlquery,
-          [message.sender, message.receiver, message.message, 0]);
+          [sender_token.id, message.receiver, message.message, 0]);
       muutuunut = true;
       res.sendStatus(202);
 
