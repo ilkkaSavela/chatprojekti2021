@@ -44,16 +44,18 @@ conn.connect(function(err) {
   console.log('Connected to MySQL!');
 });
 
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
 
   // Website you wish to allow to connect
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   // Request methods you wish to allow
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Methods',
+      'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 
   // Request headers you wish to allow
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  res.setHeader('Access-Control-Allow-Headers',
+      'X-Requested-With,content-type');
 
   // Set to true if you need the website to include cookies in the requests sent
   // to the API (e.g. in case you use sessions)
@@ -111,56 +113,68 @@ app.post('/api/register', function(req, res) {
   })();
 });
 
-app.get('/api/login', function (req, res){
-  console.log('testi')
-  let q = url.parse(req.url, true).query;
-  let email = q.email;
-  let password = q.password;
-  let alteredResult;
-  let string;
+app.post('/api/login', function(req, res) {
+  console.log('testi');
+  //let q = url.parse(req.url, true).query;
+  const q = req.body;
+  const email = q.email;
+  const password = q.password;
+  //let alteredResult;
+  // let string;
 
-  let sql = "SELECT users.email, users.password"
-      + " FROM users"
-      + " WHERE users.email = ?";
+  const sql = 'SELECT users.email, users.password'
+      + ' FROM users'
+      + ' WHERE users.email = ?';
 
-  // eslint-disable-next-line no-undef
   const query = util.promisify(conn.query).bind(conn);
 
   (async () => {
     try {
       const rows = await query(sql, [email]);
-      string = JSON.stringify(rows);
-      alteredResult = '{"numOfRows":' + rows.length + ',"rows":' + string + '}';
-      console.log("Rows: " + rows);
-      if(rows.length > 0){
-        console.log("asd")
+      //string = JSON.stringify(rows);
+      //alteredResult = '{"numOfRows":' + rows.length + ',"rows":' + string + '}';
+      console.log('Rows: ' + rows);
+
+      if (rows.length > 0) {
         hashedPw = rows[0].password;
         console.log(hashedPw);
-        bcrypt.compare(password, hashedPw, function(err, res) {
-          if(res === true){
-            console.log("Salasana oikein");
+        bcrypt.compare(password, hashedPw, function(err, result) {
+          if (result === true) {
+            console.log('Salasana oikein');
             accessToken = jwt.sign({name: email}, secrets.jwtSecret,
-                {expiresIn: "1h"}) // expires in one hour
+                {expiresIn: '1h'}); // expires in one hour
             console.log(accessToken);
-            muutuunut=true;
+            muutuunut = true;
+            res.status(202).json({accessToken: accessToken});
+          } else {
+            console.log('Salasana väärin');
+            res.sendStatus(401);
+          }
+        });
+      } else {
+        //Luodaan uusi käyttäjä
+        console.log('Luodaan uusi käyttäjä');
+        const sqlquery = 'INSERT INTO users (email, password) VALUES (?, ?)';
+          try {
+            hashedPw = await bcrypt.hash(q.password, saltRounds);
+            await query(sqlquery, [q.email, hashedPw]);
+            accessToken = jwt.sign({name: email}, secrets.jwtSecret,
+                {expiresIn: '1h'});
+            res.status(201).json({accessToken: accessToken});
+          } catch (e) {
+            console.log(e);
+            res.sendStatus(400);
           }
 
-        });
       }
-      else{
-        console.log("Salasana väärin");
-        accessToken = null
-      }
-
-      res.status(202).json({ accessToken: accessToken });
       // res.send(alteredResult);
 
     } catch (err) {
-      console.log("Database error!" + err);
+      console.log('Database error!' + err);
     } finally {
       //conn.end();
     }
-  })()
+  })();
 
 });
 app.post('/api/messages', function(req, res) {
@@ -197,7 +211,7 @@ app.get('/api/messages', function(req, res) {
     return new Promise((resolve, reject) => {
 
       if (muutuunut) {
-        console.log('data muuttunut')
+        console.log('data muuttunut');
         conn.query('SELECT * FROM data WHERE sender=? or receiver=?',
             [19, 19],
             function(err, result, fields) {
@@ -205,7 +219,7 @@ app.get('/api/messages', function(req, res) {
               if (result) {
                 resolve(result);
               } else {
-                reject('dataa ei saada haettua')
+                reject('dataa ei saada haettua');
               }
             });
 
@@ -233,13 +247,13 @@ app.get('/api/messages', function(req, res) {
     });
 
     res.send(messages);
-  }).catch((reason)=> {
+  }).catch((reason) => {
     res.sendStatus(204);
-  })
+  });
 
 });
 
-const server = app.listen(8080, "localhost", function() {
+const server = app.listen(8080, 'localhost', function() {
   const host = server.address().address;
   const port = server.address().port;
 

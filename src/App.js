@@ -3,6 +3,7 @@ import Login from './login';
 import Chat from './chat';
 import {BrowserRouter as Router, Route} from 'react-router-dom';
 import React from 'react';
+import ProtectedRoute from './components/ProtectedRoute';
 
 
 function App() {
@@ -10,7 +11,7 @@ function App() {
       <div className="App">
         <Router>
           <Route exact path="/" component={Login}/>
-          <Route path="/chat" component={Chat}/>
+          <ProtectedRoute path="/chat" component={Chat}/>
         </Router>
       </div>
 
