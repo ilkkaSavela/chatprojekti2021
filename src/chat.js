@@ -53,7 +53,7 @@ const Chat = () => {
         `http://127.0.0.1:8080/api/Rmessages`);
     request.send();*/
 
-    axios.get('http://127.0.0.1:8080/api/messages',
+    axios.get('http://127.0.0.1:8080/api/messages',{params:{token: localStorage.getItem('myToken')}}
     ).then(response => {
       console.log(response.request.responseText);
       const res = (response.request.responseText);
@@ -196,7 +196,8 @@ const Chat = () => {
     setNewMessage(event.target.value);
   };
 
-  const handleSendingMessage = () => {
+  const handleSendingMessage = (event) => {
+    event.preventDefault()
     console.log('Lähetetään viesti: ' + newMessage);
     if ((newMessage !== '')) {
       console.log('Lähetetään viesti: ' + newMessage);

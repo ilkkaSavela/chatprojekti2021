@@ -181,9 +181,10 @@ app.post('/api/messages', function(req, res) {
   console.log('Uusi viesti lähetetty');
   const query = util.promisify(conn.query).bind(conn);
   const message = req.body;
-  console.log(message);
+  console.log(message.token);
   //console.log(req.signedCookies.userID);
-  const sender_token = jwt.decode(message.token)
+
+  const sender_token = jwt.decode(message.token);
   (async () => {
     try {
 
@@ -207,6 +208,9 @@ app.post('/api/messages', function(req, res) {
 app.get('/api/messages', function(req, res) {
   console.log('API viestit kutsuttu');
   console.log(19);
+  const param = url.parse(req.url, true).query;
+  console.log(param.token)
+  const token = jwt.decode(param.token);
   muutuunut = true;
   const viesti = () => {
     return new Promise((resolve, reject) => {
@@ -214,7 +218,7 @@ app.get('/api/messages', function(req, res) {
       if (muutuunut) {
         console.log('data muuttunut');
         conn.query('SELECT * FROM data WHERE sender=? or receiver=?',
-            [19, 19],
+            [token.id, token.id],
             function(err, result, fields) {
               if (err) throw err;
               if (result) {
