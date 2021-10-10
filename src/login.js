@@ -1,12 +1,10 @@
 //import './landingpage.css';
 import
-React, {useState} from 'react';
-import { Helmet } from 'react-helmet';
+  React, {useState} from 'react';
+import {Helmet} from 'react-helmet';
 import {Form} from 'react-bootstrap';
 import {Button} from 'react-bootstrap';
-import {Link} from 'react-router-dom';
 import * as PropTypes from 'prop-types';
-
 
 let json;
 let tokenKey = 'myToken';
@@ -21,8 +19,11 @@ Redirect.propTypes = {to: PropTypes.string};
 const Login = () => {
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
-
   const [validated, setValidated] = useState(false);
+  const [logged, setLogged] = useState(() => {
+    return localStorage.getItem(
+        'myToken') !== null;
+  });
 
   const handleEmailChange = (event) => {
     console.log(event.target.value);
@@ -37,18 +38,18 @@ const Login = () => {
   const validityChecker = (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
-      console.log("invalid")
+      console.log('invalid');
       event.preventDefault();
       event.stopPropagation();
-    }else {
-      handleSubmit(event)
+    } else {
+      handleSubmit(event);
     }
     setValidated(true);
 
-  }
+  };
 
   const handleSubmit = event => {
-    console.log('lähetetään lomake')
+    console.log('lähetetään lomake');
     const userObject = {
       email: newEmail,
       password: newPassword,
@@ -57,7 +58,7 @@ const Login = () => {
     let xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function() {
       if (xmlhttp.readyState === 4) {
-        console.log(xmlhttp.status)
+        console.log(xmlhttp.status);
 
         switch (xmlhttp.status) {
           case 201: //Uusi käyttäjä
@@ -79,34 +80,33 @@ const Login = () => {
               localStorage.setItem('userID', json.userID);
               console.log('Käyttäjä löydetty! ' + json.accessToken);
               alert('Kirjauduttu');
-              window.location.href = '/chat'
+              window.location.href = '/chat';
             }
             break;
           case 400: // Käyttäjän luonti ei onnistunut
-              alert('Virhe!')
+            alert('Virhe!');
             break;
           case 401: // Väärä salasana
-            console.log('väärä salasana')
-              alert('Väärä salasana')
+            console.log('väärä salasana');
+            alert('Väärä salasana');
             break;
 
           default:
 
         }
 
-
-        }
       }
+    };
 
-/*
-    xmlhttp.open('GET',
-        'http://localhost:8080/api/login?email=' + newEmail + '&password=' +
-        newPassword, true);
-    xmlhttp.send(); */
+    /*
+        xmlhttp.open('GET',
+            'http://localhost:8080/api/login?email=' + newEmail + '&password=' +
+            newPassword, true);
+        xmlhttp.send(); */
 
-  xmlhttp.open('POST', 'http://localhost:8080/api/login', true);
-  xmlhttp.setRequestHeader('Content-Type', 'application/json');
-  xmlhttp.send(JSON.stringify(userObject));
+    xmlhttp.open('POST', 'http://localhost:8080/api/login', true);
+    xmlhttp.setRequestHeader('Content-Type', 'application/json');
+    xmlhttp.send(JSON.stringify(userObject));
     setValidated(true);
     event.preventDefault();
   };
@@ -115,13 +115,14 @@ const Login = () => {
 
       <div className="bg-image">
         <Helmet>
-          <link rel="stylesheet" href="/css/landingpage.css" />
+          <link rel="stylesheet" href="/css/landingpage.css"/>
         </Helmet>
         <div id="header">
           <img alt="" src="/img/logo_transparent.png"/>
           <div className="dropdown">
             <div id="chat_drop_button"><img alt=""
-                src="./img/iconfinder_multimedia-24_2849812.png"/></div>
+                                            src="./img/iconfinder_multimedia-24_2849812.png"/>
+            </div>
             <div id="dropdown_content">
               <a href="/chat">Chat-sivu</a>
             </div>
@@ -131,35 +132,53 @@ const Login = () => {
         <div id="main">
           <div id="facts">
             <h1 id="text">Hei, <br/> tervetuloa käyttämään chat-sovellusta.
-              Aloita käyttäminen kirjoittamalla oma sähköposti osoitteesi sekä haluamasi salasana sivulle, jonka jälkeen sinut ohjataan chat-sivulle. </h1>
+              Aloita käyttäminen kirjoittamalla oma sähköposti osoitteesi sekä
+              haluamasi salasana sivulle, jonka jälkeen sinut ohjataan
+              chat-sivulle. </h1>
           </div>
           <div id="log">
-          <Form noValidate validated={validated} onSubmit={validityChecker}>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Sähköposti:</Form.Label>
-              <Form.Control type="email" value={newEmail}  placeholder="Anna sähköposti"
-                            onChange={handleEmailChange} required/>
-              <Form.Control.Feedback type="invalid">Anna oikea sähköposti osoite! </Form.Control.Feedback>
-            </Form.Group>
+            <div style={{display: logged ? 'block' : 'none'}}>
+              <h2>Olet kirjautunut sisään käyttäjänä {localStorage.getItem(
+                  'userID')}!</h2>
+              <Button onClick={() => {
+                localStorage.clear();
+                setLogged(false);
+                alert('Olet kirjautunut ulos!');
+              }}>Kirjaudu ulos</Button>
+            </div>
 
-            <Form.Group className="mb-3" controlId="formBasicPassword">
-              <Form.Label>Salasana:</Form.Label>
-              <Form.Control type="password" value={newPassword} placeholder="salasana"
-                            onChange={handlePasswordChange} required/>
-              <Form.Control.Feedback type="invalid">Väärä salasana</Form.Control.Feedback>
-            </Form.Group>
-            <Button variant="primary" type="submit">
-              Login
-            </Button>
-          </Form>
+            <Form style={{display: logged ? 'none' : 'block'}} id="loginForm"
+                  noValidate validated={validated} onSubmit={validityChecker}>
+              <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Label>Sähköposti:</Form.Label>
+                <Form.Control type="email" value={newEmail}
+                              placeholder="Anna sähköposti"
+                              onChange={handleEmailChange} required/>
+                <Form.Control.Feedback type="invalid">Anna oikea sähköposti
+                  osoite! </Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group className="mb-3" controlId="formBasicPassword">
+                <Form.Label>Salasana:</Form.Label>
+                <Form.Control type="password" value={newPassword}
+                              placeholder="salasana"
+                              onChange={handlePasswordChange} required/>
+                <Form.Control.Feedback type="invalid">Väärä
+                  salasana</Form.Control.Feedback>
+              </Form.Group>
+              <Button variant="primary" type="submit">
+                Kirjaudu
+              </Button>
+            </Form>
+
           </div>
         </div>
         <div id="author">
           <img className="picture" alt="" src="/img/Kuva_Elias.jpeg"/>
-            <img className="picture" alt="" src="img/kuva_ilkka.jpeg"/>
-              <img className="picture" alt="" src="img/Kuva_Aleksi.jpeg"/>
+          <img className="picture" alt="" src="img/kuva_ilkka.jpeg"/>
+          <img className="picture" alt="" src="img/Kuva_Aleksi.jpeg"/>
         </div>
       </div>
-);
+  );
 };
-export default Login
+export default Login;
