@@ -205,9 +205,9 @@ app.post('/api/messages', function(req, res) {
   ();
 });
 
+
 app.get('/api/messages', function(req, res) {
   console.log('API viestit kutsuttu');
-  console.log(19);
   const param = url.parse(req.url, true).query;
   console.log(param.token)
   const token = jwt.decode(param.token);
@@ -217,7 +217,7 @@ app.get('/api/messages', function(req, res) {
 
       if (muutuunut) {
         console.log('data muuttunut');
-        conn.query('SELECT * FROM data WHERE sender=? or receiver=?',
+        conn.query('SELECT * FROM data WHERE sender=? or receiver=? ',
             [token.id, token.id],
             function(err, result, fields) {
               if (err) throw err;
@@ -240,12 +240,12 @@ app.get('/api/messages', function(req, res) {
     result.map((message) => {
       const sender = () => {
         if (Number(message.sender) ===
-            Number(19)) {
+            Number(token.id)) {
           return 1;
         } else return 2;
       };
       messages.push({
-        'userid': 19,
+        'userid': token.id,
         'sender': sender(),
         'message': message,
       });
