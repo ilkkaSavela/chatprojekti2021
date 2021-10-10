@@ -1,11 +1,11 @@
 //import './chatstyle.css';
 import React, {useEffect, useState} from 'react';
 import {Helmet} from 'react-helmet';
-import {Button, Form, Table} from 'react-bootstrap';
+import {Button, Form} from 'react-bootstrap';
 import axios from 'axios';
 
 let ajettu = false;
-let naytettavakontakti = '';
+let naytettavacontact = '';
 
 const Chat = () => {
 
@@ -16,15 +16,21 @@ const Chat = () => {
   const receiverID_sendmessage = document.getElementById('receiver_sending');
   const newConversation_button = document.getElementById('new_conversation');
   const menu_button = document.getElementById('chat_drop_button');
-  const contactslist = [];
+  let contactslist = [];
   let content;
   let contact;
+  let test;
 
   ///////////////////////////////////////////
 
   const [newMessage, setNewMessage] = useState('');
   const [validated, setValidated] = useState(false);
   const [contents, setContents] = useState([]);
+  const [receiver, setReceiver] = useState(contact);
+
+  const [contacts, setContacts] = useState([]);
+
+
 
   const getMessages = () => {
 
@@ -55,118 +61,115 @@ const Chat = () => {
 
     axios.get('http://127.0.0.1:8080/api/messages',{params:{token: localStorage.getItem('myToken')}}
     ).then(response => {
-      console.log(response.request.responseText);
       const res = (response.request.responseText);
-      console.log((res));
-      //contactsToScreen(res)
-      messagesToScreen(res, 22);
+      contactsToScreen(res);
+      messagesToScreen(res, undefined);
     });
 
   };
 
-  /*
-      const contactsToScreen = (res) => {
-          res.map(message => {
-              if (Number(message.sender) === 1) {
-                  console.log('Message user Id: '+message.userid)
-                  //menu_button.innerHTML = `<span style="text-align: center">${message.message.sender}</span>`;
-                  if (!contactslist.find(
-                      (contact) => contact === message.message.receiver)) {
-                      const contactbar = document.createElement('div');
-                      contactbar.className = 'contactbar';
-                      contactbar.addEventListener('click', () => {
-                          messagesToScreen(content, message.message.receiver);
-                          receiverID_sendmessage.value = message.message.receiver;
-                          const lista = document.getElementsByClassName('contactbar-selected');
-                          for (let i=0;i<lista.length;i++) {
-                              lista[i].className = 'contactbar';
-                          }
-                          contactbar.className = 'contactbar-selected'
-                      });
-                      const contactName = document.createElement('h4');
-                      contactslist.push(message.message.receiver);
-                      contactName.innerText = message.message.receiver;
-                      contactbar.appendChild(contactName);
-                      contact_view.appendChild(contactbar);
-
-                  }
-
-              } else if (Number(message.sender) === 2) {
-                  //menu_button.innerHTML = `<span style="text-align: center">${message.message.receiver}</span>`;
-                  if (!contactslist.find((contact) => contact === message.message.sender)) {
-                      const contactbar = document.createElement('div');
-                      contactbar.className = 'contactbar';
-                      contactbar.addEventListener('click', () => {
-                          messagesToScreen(content, message.message.sender);
-                          receiverID_sendmessage.value = message.message.sender;
-                          const lista = document.getElementsByClassName('contactbar-selected');
-                          for (let i=0;i<lista.length;i++) {
-                              lista[i].className = 'contactbar';
-                          }
-                          contactbar.className = 'contactbar-selected'
-                      });
-                      const contactName = document.createElement('h4');
-                      contactslist.push(message.message.sender);
-                      contactName.innerText = message.message.sender;
-                      contactbar.appendChild(contactName);
-                      contact_view.appendChild(contactbar);
-                  }
-              }
-
-          });
-      };
-  */
-  const messagesToScreen = (res, lastcontact) => {
-    naytettavakontakti = lastcontact;
+  const contactsToScreen = (res) => {
     let test = JSON.parse(res);
-    setContents(JSON.parse(res));
-    for (var i = 0; i < test.length; i++) {
-      if (test[i].sender === 1) {
-        test[i].sender = 'sentmessages';
-      } else {
-        test[i].sender = 'receivedmessages';
+    setContacts(JSON.parse(res));
+    let memo=[];
+    for(let x = 0; x < test.length; x++){
+     if(!memo.find(element => element === test[x].message.receiver)){
+        memo.push(test[x].message.receiver);
       }
     }
-    setContents(test);
-    console.log(contents);
-    // setContents(contents);
-    /* console.log('called to messages to screen ')
-     if (lastcontact) {
-         contact = lastcontact;
-     }
-     messages_view.innerHTML = '';
-     document.getElementById('messages');
-     res.map(message => {
-         if (Number(message.message.sender) === Number(contact) || Number(message.message.receiver) ===
-             Number(contact)) {
+    let memo2=[]
+    for(let i = 0; i<memo.length;i++){
+      memo2.push({"contact":+memo[i]});
+      //memo2[i]=({"contact":+memo[i]});
+    }
+    setContacts(memo2);
+    contactslist=memo;
+    if((document.getElementsByClassName('contactbar')).length==0) {
+      contactslist.map(result => {
 
-             const messagebar = document.createElement('div');
-             if (Number(message.sender) === 1) {
-                 messagebar.className = 'sentmessages';
-             } else if (Number(message.sender) === 2) {
-                 messagebar.className = 'receivedmessages';
-             }
-             const messageText = document.createElement('p');
-             messageText.innerText = message.message.message;
-             messagebar.appendChild(messageText);
-             messages_view.appendChild(messagebar);
+            const contactbar = document.createElement('div');
+            contactbar.className = 'contactbar';
+            contactbar.addEventListener('click', () => {
+              if (content) {
+                messagesToScreen(content, Number(result));
+              }
+              setReceiver(Number(result));
+              ///receiverID_sendmessage.value = Number(contact);
+              const lista = document.getElementsByClassName('contactbar-selected');
+              for (let i = 0; i < lista.length; i++) {
+                lista[i].className = 'contactbar';
+              }
+              contactbar.className = 'contactbar-selected'
+              contactbar.id = 'contactbar-selected'
+            });
+            const contactName = document.createElement('h4');
+            contactName.innerText = result;
+            contactbar.appendChild(contactName);
 
-         }
 
-     });
-     //gotoBottom();
-     //getMessages();*/
+            document.getElementById('contacts').appendChild(contactbar);
+          }
+      );
+    }
 
+  }
+
+
+  const messagesToScreen = (res, lastcontact) => {
+    if (lastcontact) {
+      contact = lastcontact;
+    }
+    if(res) {
+      let test = JSON.parse(res);
+
+      setContents(test);
+      for (let i = 0; i < test.length; i++) {
+        if (test[i].sender === 2) {
+          test[i].sender = 'sentmessages';
+        } else {
+          test[i].sender = 'receivedmessages';
+        }
+      }
+      setContents(test);
+      setContents(test);
+
+      // setContents(contents);
+      /* console.log('called to messages to screen ')
+       if (lastcontact) {
+           contact = lastcontact;
+       }
+       messages_view.innerHTML = '';
+       document.getElementById('messages');
+       res.map(message => {
+           if (Number(message.message.sender) === Number(contact) || Number(message.message.receiver) ===
+               Number(contact)) {
+
+               const messagebar = document.createElement('div');
+               if (Number(message.sender) === 1) {
+                   messagebar.className = 'sentmessages';
+               } else if (Number(message.sender) === 2) {
+                   messagebar.className = 'receivedmessages';
+               }
+               const messageText = document.createElement('p');
+               messageText.innerText = message.message.message;
+               messagebar.appendChild(messageText);
+               messages_view.appendChild(messagebar);
+
+           }
+
+       });
+       //gotoBottom();
+       //getMessages();*/
+    }
   };
 
   useEffect(() => {
-    console.log('Exucute useEffect');
-    //getUserid();
+    console.log('Execute useEffect');
     if (!(ajettu)) {
       getMessages();
       ajettu = true;
     }
-
+    //getMessages()
   });
 
   const validityChecker = (event) => {
@@ -183,8 +186,6 @@ const Chat = () => {
       event.preventDefault();
       event.stopPropagation();
     } else {
-
-      console.log('handeli kutsuttu: ' + newMessage + validated);
       handleSendingMessage(event);
 
     }
@@ -192,7 +193,6 @@ const Chat = () => {
 
   };
   const handleMessageChange = (event) => {
-    console.log(event.target.value);
     setNewMessage(event.target.value);
   };
 
@@ -203,12 +203,14 @@ const Chat = () => {
       console.log('Lähetetään viesti: ' + newMessage);
       const messageObject = {
         token: localStorage.getItem('myToken'),
-        receiver: 53,
+        receiver: receiver,
         message: newMessage,
       };
       let xmlhttp = new XMLHttpRequest();
       xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 202) {
+
+          getMessages();
 
           //json = JSON.parse(xmlhttp.responseText);
           //console.log(json);
@@ -219,8 +221,7 @@ const Chat = () => {
           'http://127.0.0.1:8080/api/messages', true);
       xmlhttp.setRequestHeader('Content-Type', 'application/json');
       xmlhttp.send(JSON.stringify(messageObject));
-    }
-    ;
+    };
     setNewMessage('');
   };
 
@@ -231,18 +232,20 @@ const Chat = () => {
   }
 
   const new_conv = () => {
-    const new_contact = prompt('syötä kontaktin ID');
+    const new_contact = prompt('syötä contactn ID');
     if (new_contact !== '' && new_contact !== null ){
       const contactbar = document.createElement('div');
       contactbar.className = 'contactbar';
       contactbar.addEventListener('click', () => {
         messagesToScreen(content, Number(new_contact));
-        receiverID_sendmessage.value = Number(new_contact);
+        setReceiver(Number(new_contact));
+        ///receiverID_sendmessage.value = Number(new_contact);
         const lista = document.getElementsByClassName('contactbar-selected');
         for (let i=0;i<lista.length;i++) {
           lista[i].className = 'contactbar';
         }
         contactbar.className = 'contactbar-selected'
+        contactbar.id = 'contactbar-selected'
       });
       const contactName = document.createElement('h4');
       contactslist.push(Number(new_contact));
@@ -268,19 +271,29 @@ const Chat = () => {
         <div id="chat_history">
           <h4>Edelliset keskustelut</h4>
           <div id="contacts">
+            { /* {contactslist.map(contra => {
+              return (
+                  <div className={"contactbar"}><h4>{contra}</h4>
+                  </div>
+              );
+            })}*/}
           </div>
           <Button id="new_conversation"
-                  onClick={() => new_conv()}><h3>uusi
+              onClick={() => new_conv()}><h3>uusi
             keskustelu</h3></Button>
         </div>
         <div id="messages">
 
 
           {contents.map(result => {
-            return (
-                <div className={result.sender}><p>{result.message.message}</p>
-                </div>
-            );
+            if (Number(result.message.sender) === receiver || Number(result.message.receiver) ===
+                receiver) {
+
+              return (
+                  <div className={result.sender}><p>{result.message.message}</p>
+                  </div>
+              );
+            }
           })}
 
 
