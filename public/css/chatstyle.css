@@ -7,7 +7,7 @@ body, html {
     margin: 0 auto 0 auto;
 
      */
-    background: red;
+    background: black;
     overflow: hidden;
 }
 .bg-image{
@@ -44,8 +44,7 @@ body, html {
 }
 
 #chat_drop_button span {
-    top: 5px;
-    left: 15px;
+    bottom: 7px;
     position: relative;
     font-size: 60px;
 }

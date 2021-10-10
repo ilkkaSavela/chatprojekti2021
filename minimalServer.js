@@ -149,6 +149,7 @@ app.post('/api/login', function(req, res) {
           } else {
             console.log('Salasana väärin');
             res.sendStatus(401);
+
           }
         });
       } else {
@@ -157,10 +158,12 @@ app.post('/api/login', function(req, res) {
         const sqlquery = 'INSERT INTO users (email, password) VALUES (?, ?)';
           try {
             hashedPw = await bcrypt.hash(q.password, saltRounds);
-            const newU = await query(sqlquery, [q.email, hashedPw]);
-            accessToken = jwt.sign({id: newU.id, email: newU.email}, secrets.jwtSecret,
+            const response = await query(sqlquery, [q.email, hashedPw]);
+            const secondQuery = 'SELECT * FROM users WHERE id=?'
+            const newU = await query(secondQuery, [response.insertId]);
+            accessToken = jwt.sign({id: newU[0].id, email: newU[0].email}, secrets.jwtSecret,
                 {expiresIn: '1h'});
-            res.status(201).json({accessToken: accessToken, userID: newU.id });
+            res.status(201).json({accessToken: accessToken, userID: newU[0].id });
           } catch (e) {
             console.log(e);
             res.sendStatus(400);
