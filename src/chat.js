@@ -62,6 +62,7 @@ const Chat = () => {
     axios.get('http://127.0.0.1:8080/api/messages',{params:{token: localStorage.getItem('myToken')}}
     ).then(response => {
       const res = (response.request.responseText);
+      console.log(res);
       contactsToScreen(res);
       messagesToScreen(res, undefined);
     });
@@ -77,12 +78,14 @@ const Chat = () => {
         memo.push(test[x].message.receiver);
       }
     }
+    console.log(memo);
     let memo2=[]
     for(let i = 0; i<memo.length;i++){
       memo2.push({"contact":+memo[i]});
       //memo2[i]=({"contact":+memo[i]});
     }
     setContacts(memo2);
+
     contactslist=memo;
     if((document.getElementsByClassName('contactbar')).length==0) {
       contactslist.map(result => {
@@ -165,12 +168,12 @@ const Chat = () => {
 
   useEffect(() => {
     console.log('Execute useEffect');
-    if (!(ajettu)) {
+    /*if (!(ajettu)) {
       getMessages();
       ajettu = true;
-    }
-    //getMessages()
-  });
+    }*/
+    getMessages()
+  },[]);
 
   const validityChecker = (event) => {
     console.log('Validity check start');
@@ -286,11 +289,20 @@ const Chat = () => {
 
 
           {contents.map(result => {
-            if (Number(result.message.sender) === receiver || Number(result.message.receiver) ===
-                receiver) {
+            if (Number(result.message.sender) === receiver) {
 
               return (
-                  <div className={result.sender}><p>{result.message.message}</p>
+                  <div className="receivedmessages"><p>{result.message.message}</p>
+                  </div>
+              );
+            }else if( Number(result.message.receiver) === receiver){
+              return (
+                  <div className="sentmessages"><p>{result.message.message}</p>
+                  </div>
+              );
+            }else{
+              return (
+                  <div>
                   </div>
               );
             }
