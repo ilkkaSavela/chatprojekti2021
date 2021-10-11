@@ -74,19 +74,18 @@ const Chat = () => {
     setContacts(JSON.parse(res));
     let memo=[];
     for(let x = 0; x < test.length; x++){
-     if(!memo.find(element => element === test[x].message.receiver)){
+      if((test[x].message.receiver===Number(localStorage.getItem('userID')))){
+        memo.push(test[x].message.sender);
+      }else if((test[x].message.receiver!==Number(localStorage.getItem('userID')))){
         memo.push(test[x].message.receiver);
       }
     }
-    console.log(memo);
-    let memo2=[]
-    for(let i = 0; i<memo.length;i++){
-      memo2.push({"contact":+memo[i]});
-      //memo2[i]=({"contact":+memo[i]});
-    }
-    setContacts(memo2);
+    let memo2= [...new Set(memo)]
 
-    contactslist=memo;
+    console.log(memo2);
+
+
+    contactslist=memo2;
     if((document.getElementsByClassName('contactbar')).length==0) {
       contactslist.map(result => {
 
