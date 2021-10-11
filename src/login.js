@@ -23,16 +23,19 @@ const Login = () => {
         'myToken') !== null;
   });
 
+  // käsittelee sähköpostin vaihdon
   const handleEmailChange = (event) => {
     console.log(event.target.value);
     setNewEmail(event.target.value);
   };
 
+  // käsittelee salasanan vaihdon
   const handlePasswordChange = (event) => {
     console.log(event.target.value);
     setNewPassword(event.target.value);
   };
 
+  //katsoo onko validointi kunnossa ja jos on päästää läpi
   const validityChecker = (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
@@ -46,6 +49,7 @@ const Login = () => {
 
   };
 
+//käsittelee lähetyksen ja tarkistaa onko käyttäjää ja jos ei ole tekee sen ja päästää sitten chat sivulle
   const handleSubmit = event => {
     console.log('lähetetään lomake');
     const userObject = {
