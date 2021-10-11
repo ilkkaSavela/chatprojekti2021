@@ -4,61 +4,21 @@ import {Helmet} from 'react-helmet';
 import {Button, Form} from 'react-bootstrap';
 import axios from 'axios';
 
-let ajettu = false;
-let naytettavacontact = '';
-
 const Chat = () => {
 
-  ////////////////////////////// Testausta
-  const send_new_message = document.getElementById('send_new_message');
-  const messages_view = document.getElementById('messages');
+
   const contact_view = document.getElementById('contacts');
-  const receiverID_sendmessage = document.getElementById('receiver_sending');
-  const newConversation_button = document.getElementById('new_conversation');
-  const menu_button = document.getElementById('chat_drop_button');
   let contactslist = [];
   let content;
   let contact;
-  let test;
-
-  ///////////////////////////////////////////
 
   const [newMessage, setNewMessage] = useState('');
   const [validated, setValidated] = useState(false);
   const [contents, setContents] = useState([]);
   const [receiver, setReceiver] = useState(contact);
 
-  const [contacts, setContacts] = useState([]);
-
-
 
   const getMessages = () => {
-
-    /*const request = new XMLHttpRequest();
-
-    request.onreadystatechange = () => {
-        if (request.readyState === 4 && request.status === 200) {
-            //console.log(request.responseText);
-            const res = JSON.parse(request.responseText);
-            content = res;
-            console.log(res);
-            contactsToScreen(res);
-            messagesToScreen(res, undefined);
-            request.open('GET',
-                `http://127.0.0.1:8080/api/messages`);
-            request.send();
-        } else if (request.readyState === 4 && request.status === 204) {
-            request.open('GET',
-                `http://127.0.0.1:8080/api/messages`);
-            request.send();
-        }
-
-    };
-
-    request.open('GET',
-        `http://127.0.0.1:8080/api/Rmessages`);
-    request.send();*/
-
     axios.get('http://127.0.0.1:8080/api/messages',{params:{token: localStorage.getItem('myToken')}}
     ).then(response => {
       const res = (response.request.responseText);
@@ -71,7 +31,6 @@ const Chat = () => {
 
   const contactsToScreen = (res) => {
     let test = JSON.parse(res);
-    setContacts(JSON.parse(res));
     let memo=[];
     for(let x = 0; x < test.length; x++){
       if((test[x].message.receiver===Number(localStorage.getItem('userID')))){
@@ -80,13 +39,8 @@ const Chat = () => {
         memo.push(test[x].message.receiver);
       }
     }
-    let memo2= [...new Set(memo)]
-
-    console.log(memo2);
-
-
-    contactslist=memo2;
-    if((document.getElementsByClassName('contactbar')).length==0) {
+    contactslist=[...new Set(memo)];
+    if((document.getElementsByClassName('contactbar')).length===0) {
       contactslist.map(result => {
 
             const contactbar = document.createElement('div');
@@ -96,7 +50,6 @@ const Chat = () => {
                 messagesToScreen(content, Number(result));
               }
               setReceiver(Number(result));
-              ///receiverID_sendmessage.value = Number(contact);
               const lista = document.getElementsByClassName('contactbar-selected');
               for (let i = 0; i < lista.length; i++) {
                 lista[i].className = 'contactbar';
@@ -107,8 +60,6 @@ const Chat = () => {
             const contactName = document.createElement('h4');
             contactName.innerText = result;
             contactbar.appendChild(contactName);
-
-
             document.getElementById('contacts').appendChild(contactbar);
           }
       );
@@ -135,42 +86,12 @@ const Chat = () => {
       setContents(test);
       setContents(test);
 
-      // setContents(contents);
-      /* console.log('called to messages to screen ')
-       if (lastcontact) {
-           contact = lastcontact;
-       }
-       messages_view.innerHTML = '';
-       document.getElementById('messages');
-       res.map(message => {
-           if (Number(message.message.sender) === Number(contact) || Number(message.message.receiver) ===
-               Number(contact)) {
-
-               const messagebar = document.createElement('div');
-               if (Number(message.sender) === 1) {
-                   messagebar.className = 'sentmessages';
-               } else if (Number(message.sender) === 2) {
-                   messagebar.className = 'receivedmessages';
-               }
-               const messageText = document.createElement('p');
-               messageText.innerText = message.message.message;
-               messagebar.appendChild(messageText);
-               messages_view.appendChild(messagebar);
-
-           }
-
-       });
        //gotoBottom();
-       //getMessages();*/
     }
   };
 
   useEffect(() => {
     console.log('Execute useEffect');
-    /*if (!(ajettu)) {
-      getMessages();
-      ajettu = true;
-    }*/
     getMessages()
   },[]);
 
@@ -178,11 +99,6 @@ const Chat = () => {
     console.log('Validity check start');
     const form = event.currentTarget;
     console.log(form.checkValidity());
-    /* if (form.checkValidity() === false) {
-          console.log("invalid")
-          event.preventDefault();
-          event.stopPropagation();
-     console.log("Validity: "+newMessage);*/
     if (newMessage === '') {
 
       event.preventDefault();
@@ -211,19 +127,14 @@ const Chat = () => {
       let xmlhttp = new XMLHttpRequest();
       xmlhttp.onreadystatechange = function() {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 202) {
-
           getMessages();
-
-          //json = JSON.parse(xmlhttp.responseText);
-          //console.log(json);
-
         }
       };
       xmlhttp.open('POST',
           'http://127.0.0.1:8080/api/messages', true);
       xmlhttp.setRequestHeader('Content-Type', 'application/json');
       xmlhttp.send(JSON.stringify(messageObject));
-    };
+    }
     setNewMessage('');
   };
 
@@ -241,7 +152,6 @@ const Chat = () => {
       contactbar.addEventListener('click', () => {
         messagesToScreen(content, Number(new_contact));
         setReceiver(Number(new_contact));
-        ///receiverID_sendmessage.value = Number(new_contact);
         const lista = document.getElementsByClassName('contactbar-selected');
         for (let i=0;i<lista.length;i++) {
           lista[i].className = 'contactbar';
@@ -273,20 +183,12 @@ const Chat = () => {
         <div id="chat_history">
           <h4>Edelliset keskustelut</h4>
           <div id="contacts">
-            { /* {contactslist.map(contra => {
-              return (
-                  <div className={"contactbar"}><h4>{contra}</h4>
-                  </div>
-              );
-            })}*/}
           </div>
           <Button id="new_conversation"
               onClick={() => new_conv()}><h3>uusi
             keskustelu</h3></Button>
         </div>
         <div id="messages">
-
-
           {contents.map(result => {
             if (Number(result.message.sender) === receiver) {
 
@@ -306,10 +208,7 @@ const Chat = () => {
               );
             }
           })}
-
-
         </div>
-
         <div id="new_message">
           <Form noValidate validated={validated} onSubmit={validityChecker}
                 id="new_message_form">
@@ -318,8 +217,6 @@ const Chat = () => {
             </Form.Group>
             <Form.Control id="receiver_sending" name="receiver" type="hidden"
                           value="2"/>
-            {//<textarea id="uusiviesti_sisalto" name="message" rows="2" onChange={handleMessageChange} />
-            }
             <Button id="send_new_message" type="submit">Lähetä</Button>
           </Form>
         </div>
