@@ -1,6 +1,4 @@
-//import './landingpage.css';
-import
-  React, {useState} from 'react';
+import React, {useState} from 'react';
 import {Helmet} from 'react-helmet';
 import {Form} from 'react-bootstrap';
 import {Button} from 'react-bootstrap';
@@ -98,12 +96,6 @@ const Login = () => {
       }
     };
 
-    /*
-        xmlhttp.open('GET',
-            'http://localhost:8080/api/login?email=' + newEmail + '&password=' +
-            newPassword, true);
-        xmlhttp.send(); */
-
     xmlhttp.open('POST', 'http://localhost:8080/api/login', true);
     xmlhttp.setRequestHeader('Content-Type', 'application/json');
     xmlhttp.send(JSON.stringify(userObject));
@@ -132,9 +124,8 @@ const Login = () => {
         <div id="main">
           <div id="facts">
             <h1 id="text">Hei, <br/> tervetuloa käyttämään chat-sovellusta.
-              Aloita käyttäminen kirjoittamalla oma sähköposti osoitteesi sekä
-              haluamasi salasana sivulle, jonka jälkeen sinut ohjataan
-              chat-sivulle. </h1>
+              Aloita käyttäminen kirjoittamalla oma sähköpostiosoitteesi sekä
+              haluamasi salasana sivulle. Tämän jälkeen sinut ohjataan automaattisesti chat-sivulle. </h1>
           </div>
           <div id="log">
             <div style={{display: logged ? 'block' : 'none'}}>
