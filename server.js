@@ -1,205 +1,158 @@
-'use strict';
-
-
 const express = require('express');
+const dotenv = require('dotenv').config();
 const app = express();
+const bodyParser = require('body-parser'); // Create application/x-www-form-urlencoded parser (for POST)
+const url = require('url');
 const mysql = require('mysql');
-const bodyParser = require('body-parser');
-const util = require('util');
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
-const cookieParser = require('cookie-parser');
-const passwordHash = require('password-hash');
+const util = require('util'); // for async calls
+const secrets = require('./config/secrets.js');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const saltRounds = 10;
+let hashedPw;
 
+//DEBUG muuttuja!!!/////////
 let muutuunut = false;
 
-/**
- * Avaa yhteyden tietokantapalvelimeen
- * @type {Connection}
- */
-const con = mysql.createConnection({
+let urlencodedParser = bodyParser.urlencoded({extended: false});
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json()); // for reading JSON
+let accessToken;
+
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
+
+const conn = mysql.createConnection({
   host: 'mysql.metropolia.fi',
   user: 'ilkkajs',
   password: 'WebProjekti2020',
   database: 'ilkkajs',
 });
+// node native promisify
+const query = util.promisify(conn.query).bind(conn); // is bind needed?
 
-passport.serializeUser((user, done) => {
-  console.log('serialize:', user);
-  done(null, user);
+conn.connect(function(err) {
+  if (err) throw err;
+  console.log('Connected to MySQL!');
 });
 
-passport.deserializeUser((user, done) => {
-  done(null, user);
+app.use(function(req, res, next) {
+
+  // Website you wish to allow to connect
+  res.setHeader('Access-Control-Allow-Origin', '*');
+
+  // Request methods you wish to allow
+  res.setHeader('Access-Control-Allow-Methods',
+      'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+  // Request headers you wish to allow
+  res.setHeader('Access-Control-Allow-Headers',
+      'X-Requested-With,content-type');
+
+  // Set to true if you need the website to include cookies in the requests sent
+  // to the API (e.g. in case you use sessions)
+  res.setHeader('Access-Control-Allow-Credentials', true);
+
+  // Pass to next layer of middleware
+  next();
 });
 
-/**
- * Tarkastaa annetun käyttäjätunnuksen ja salasana.
- * Mikäli käyttäjätunnus ja salasana ovat oikein, palauttaa käyttäjän tiedot.
- *
- * @return käyttäjän tiedot
- */
-passport.use(new LocalStrategy(
-    (username, password, done) => {
-      console.log('passport.use');
-      let res = null;
+app.post('/api/register', function(req, res) {
+  const jsonObj = req.body;
+  console.log('Jsonobjekti: ' + jsonObj);
 
-      const login = (username, password) => {
-        return new Promise(((resolve, reject) => {
-          console.log(username);
-          console.log(password);
-          con.query('SELECT * FROM users WHERE user_name = ?',
-              [username, password],
-              (err, result) => {
-                console.log(result);
-                if (result) {
-                  resolve(result);
-                } else {
-                  reject('syy');
+  let sqlquery = 'INSERT INTO users (email, password) VALUES (?, ?)';
+  (async () => {
+    try {
+      hashedPw = await bcrypt.hash(jsonObj.password, saltRounds);
+      await query(sqlquery, [jsonObj.email, hashedPw]);
+      res.status(200).send('POST succesful ' + req.body);
+    } catch (e) {
+      console.log(e);
+      res.status(400).send('POST was not succesful ' + e);
+    }
+  })();
+});
 
-                }
-              });
-        }));
-      };
-      return login(username, password).then((result) => {
-        if (result.length < 1) {
-          console.log('Käyttäjätietojen haku ei onnistunu');
-          return done(null, false);
-        } else {
-          console.log('Käyttäjätietojen haku onnistui');
+app.post('/api/login', function(req, res) {
+  console.log('testi');
+  const q = req.body;
+  const email = q.email;
+  const password = q.password;
 
-          if (passwordHash.verify(password, result[0].password)) {
-            console.log('hash ok');
-            result[0].password = '';
-            return done(null, result[0]);
+  const sql = 'SELECT users.id, users.email, users.password'
+      + ' FROM users'
+      + ' WHERE users.email = ?';
+
+  const query = util.promisify(conn.query).bind(conn);
+
+  (async () => {
+    try {
+      const rows = await query(sql, [email]);
+      console.log('Rows: ' + rows);
+
+      if (rows.length > 0) {
+        hashedPw = rows[0].password;
+        console.log(hashedPw);
+        bcrypt.compare(password, hashedPw, function(err, result) {
+          if (result === true) {
+            console.log('Salasana oikein');
+            accessToken = jwt.sign({id: rows[0].id, email: email}, secrets.jwtSecret,
+                {expiresIn: '1h'}); // expires in one hour
+            muutuunut = true;
+            res.status(202).json({accessToken: accessToken, userID: rows[0].id});
           } else {
-            console.log('hash fail');
+            console.log('Salasana väärin');
+            res.sendStatus(401);
 
-            result[0].password = '';
-            return done(null, false);
           }
-        }
-      }).catch(() => {
-        console.log('Kirjautuminen ei onnistunut');
-        return done(null, false);
-      });
-    },
-));
-
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(express.static('public'));
-app.use(express.json());
-app.use(cookieParser('testi'));
-app.use(passport.initialize());
-app.use(passport.session());
-
-/**
- * Palauttaa etusivun
- */
-app.get('/', function(req, res) {
-  console.log('Etusivu kutsuttu');
-  res.sendFile(__dirname + '/public/' + 'landingpage.html');
-});
-
-/**
- * Palauttaa chat-sivun mikäli käyttäjä on kirjautunut sisään.
- * Muuten uudelleenohjaus etusivulle ja alert näkyviin.
- */
-app.get('/chat', function(req, res) {
-  console.log('Chat kutsuttu');
-  if (req.signedCookies.userID) {
-    muutuunut = true;
-    res.sendFile(__dirname + '/public/' + 'chatpage.html');
-
-  } else {
-    res.cookie('show_messages', 1);
-    res.cookie('messages', 'Kirjaudu ensin sisälle.');
-    res.redirect('/');
-  }
-});
-
-/* API */
-
-/* Viestien haku */
-/**
- * Palauttaa kaikki viestit joissa sisäänkirjautunut käyttäjä on lähettäjä tai vastaanottaja.
- */
-app.get('/api/v1/messages', function(req, res) {
-  console.log('API viestit kutsuttu');
-  console.log(req.signedCookies.userID);
-
-  const viesti = () => {
-    return new Promise((resolve, reject) => {
-
-      if (muutuunut) {
-console.log('data muuttunut')
-        con.query('SELECT * FROM data WHERE sender=? or receiver=?',
-            [req.signedCookies.userID, req.signedCookies.userID],
-            function(err, result, fields) {
-              if (err) throw err;
-              if (result) {
-                resolve(result);
-              } else {
-                reject('dataa ei saada haettua')
-              }
-            });
-      }
-      setTimeout(() => {
-        reject('timeout');
-      }, 15000);
-    });
-  };
-  viesti().then((result) => {
-    const messages = [];
-    muutuunut = false;
-      result.map((message) => {
-        const sender = () => {
-          if (Number(message.sender) ===
-              Number(req.signedCookies.userID)) {
-            return 1;
-          } else return 2;
-        };
-        messages.push({
-          'userid': req.signedCookies.userID,
-          'sender': sender(),
-          'message': message,
         });
-      });
+      } else {
+        //Luodaan uusi käyttäjä
+        console.log('Luodaan uusi käyttäjä');
+        const sqlquery = 'INSERT INTO users (email, password) VALUES (?, ?)';
+          try {
+            hashedPw = await bcrypt.hash(q.password, saltRounds);
+            const response = await query(sqlquery, [q.email, hashedPw]);
+            const secondQuery = 'SELECT * FROM users WHERE id=?'
+            const newU = await query(secondQuery, [response.insertId]);
+            accessToken = jwt.sign({id: newU[0].id, email: newU[0].email}, secrets.jwtSecret,
+                {expiresIn: '1h'});
+            res.status(201).json({accessToken: accessToken, userID: newU[0].id });
+          } catch (e) {
+            console.log(e);
+            res.sendStatus(400);
+          }
 
-    res.send(messages);
-  }).catch((reason)=> {
-    res.sendStatus(204);
-  })
+      }
+
+    } catch (err) {
+      console.log('Database error!' + err);
+    } finally {
+    }
+  })();
 
 });
-
-/* Viestien haku END */
-/**
- * Palauttaa sisäänkirjautuneen käyttäjän id:n
- */
-app.get('/api/v1/userid', function(req, res) {
-  console.log('userID kutsuttu', req.signedCookies.userID);
-  res.send(req.signedCookies.userID);
-});
-/* UUSI VIESTI */
-/**
- * Ottaa vastaan uuden viestin JSON muodossa, täydentää siihen lähettäjäksi sisäänkirjautuneen käyttäjän ja lisää viestin tietokantaan.
- */
-app.post('/api/v1/messages/', function(req, res) {
+app.post('/api/messages', function(req, res) {
   console.log('Uusi viesti lähetetty');
-  const query = util.promisify(con.query).bind(con);
+  const query = util.promisify(conn.query).bind(conn);
   const message = req.body;
-  console.log(message);
-  console.log(req.signedCookies.userID);
+  console.log(message.token);
+  const sender_token = jwt.decode(message.token);
   (async () => {
     try {
 
       const sqlquery = 'INSERT INTO data (sender, receiver, message, received)'
           + 'VALUES (?, ?, ?, ?)';
       await query(sqlquery,
-          [req.signedCookies.userID, message.receiver, message.message, 0]);
+          [sender_token.id, message.receiver, message.message, 0]);
       muutuunut = true;
-      res.sendStatus(201);
+      res.sendStatus(202);
 
     } catch (err) {
       console.log('Database error!' + err);
@@ -211,119 +164,60 @@ app.post('/api/v1/messages/', function(req, res) {
   ();
 });
 
-/* UUSI VIESTI END */
-/* API END */
 
-/**
- * Ottaa vastaan kirjautumistiedot ja välittää ne passport.use sisällä olevalle funktiolle joka palautaa käyttäjän tiedot jos kirjautumistiedot ovat oikein.
- * Jos saadaan vastauksena käyttäjän tiedot, lähetetään selaimeen userID cookie signattuna ja uudelleenohjataan chat-sivulle.
- * Muutoin uudelleen ohjataa etusivulle ja laitetaan näkyviin alert.
- */
-/*login*/
-app.post('/login/', function(req, res, next) {
-  console.log('login aloitettu');
-  passport.authenticate('local', function(err, user, info) {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      console.log('käyttäjä ei löytyny');
-      res.cookie('show_messages', 1);
-      res.cookie('messages', 'Väärä käyttäjätunnus tai salasana');
-      return res.redirect('/');
-    }
-    req.logIn(user, function(err) {
-      res.cookie('userID', user.id, {signed: true});
+app.get('/api/messages', function(req, res) {
+  console.log('API viestit kutsuttu');
+  const param = url.parse(req.url, true).query;
+  const token = jwt.decode(param.token);
+  muutuunut = true;
+  const viesti = () => {
+    return new Promise((resolve, reject) => {
 
-      if (err) {
-        return next(err);
+      if (muutuunut) {
+        conn.query('SELECT * FROM data WHERE sender=? or receiver=? ',
+            [token.id, token.id],
+            function(err, result, fields) {
+              if (err) throw err;
+              if (result) {
+                resolve(result);
+              } else {
+                reject('dataa ei saada haettua');
+              }
+            });
+
       }
-      return res.redirect('/chat');
+      setTimeout(() => {
+        reject('timeout');
+      }, 15000);
     });
-  })(req, res, next);
-});
-/* Login END */
-
-/* LogOut */
-/**
- * Poistaa userID evästeen, uudellenohjaa etusivulle ja laitaa näkyviin alertin.
- */
-app.get('/logout', (req, res) => {
-  res.clearCookie('userID');
-  res.cookie('show_messages', 1);
-  res.cookie('messages', 'Ulos kirjautuminen onnistui');
-  res.redirect('/');
-});
-
-/* Register */
-/**
- * Ottaa vastaan käyttäjätiedot ja tarkastaa onko käyttäjänimi jo tietokannassa.
- * Jos käyttäjätunnus on vapaa, hashataan salasana ja lisätään ne tietokantaan.
- *
- *
- */
-app.use('/register', function(req, res, next) {
-  const data = [req.body.username, req.body.password];
-  console.log(data);
-
-  con.query('SELECT * FROM users WHERE user_name = ?', data[0],
-      (err, result) => {
-    if (result != undefined) {
-        if (result.length > 0) {
-          res.cookie('show_messages', 1);
-          res.cookie('messages', 'Käyttäjänimi on varattu.');
-          res.redirect('/');
-        }
-      }});
-  const hashedpass = passwordHash.generate(data[1]);
-  con.query('INSERT into users (user_name, password) VALUES (?,?)',
-      [data[0], hashedpass],
-      (err, result) => {
-        console.log(err)
-        console.log(result);
+  };
+  viesti().then((result) => {
+    const messages = [];
+    muutuunut = false;
+    result.map((message) => {
+      const sender = () => {
+        if (Number(message.sender) ===
+            Number(token.id)) {
+          return 1;
+        } else return 2;
+      };
+      messages.push({
+        'userid': token.id,
+        'sender': sender(),
+        'message': message,
       });
-  return next();
-
-});
-/**
- * Jos uusi käyttäjä saatiin luotua, yritetään sisäänkirjautumista.
- *
- */
-app.post('/register', function(req, res, next) {
-  console.log('rekisteröinti aloitettu', req.user);
-  passport.authenticate('local', function(err, user, info) {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      console.log('käyttäjä ei löytyny');
-      res.sendStatus();
-      return res.redirect('/fail');
-    }
-    req.logIn(user, function(err) {
-      res.cookie('userID', user.id, {signed: true, secure: 'testi'});
-
-      if (err) {
-        return next(err);
-      }
-      res.cookie('show_messages', 1);
-      res.cookie('messages',
-          'Käyttäjän luonti onnistui! Voit nyt kirjautua sisälle.');
-      return res.redirect('/');
     });
-  })(req, res, next);
+
+    res.send(messages);
+  }).catch((reason) => {
+    res.sendStatus(204);
+  });
+
 });
 
-/**
- * Avaa serverin localhostiin portissa 8081
- * Kirjoitetaan consoliin osoite ja portti.
- * @type {http.Server}
- */
-const server = app.listen(8081, 'localhost', function() {
+const server = app.listen(8080, 'localhost', function() {
   const host = server.address().address;
   const port = server.address().port;
-  console.log('Serveri käynnistetty');
-  console.log('Sovellus kuuntelee osoitetta: http://%s:%s', host, port);
+
+  console.log('Example app listening at http://%s:%s', host, port);
 });
-
-
