@@ -1,3 +1,57 @@
+# API
+Projektissa on toteutettu REST-rajapinta, jonka kautta voi hakea ja lähettää viestejä.
+
+## Viestit
+
+
+### Viestien haku
+GET /api/messages/
+
+Voit hakea viestit get metodilla.
+
+Api vaatii parametrina kirjautuneen käyttäjän autentikaatio tokenin, mistä palvelin tulkitsee käytttäjän id:n.
+
+Api palauttaa kaikki viestit joissa sisäänkirjautunut käyttäjä on joko lähettäjä tai vastaanottaja.
+
+### Uusi viesti
+
+POST /api/messages/
+
+Uusi viesti lähetetään POST-metodilla JSON muotoisena.
+
+JSONinssa täytyy olla seuraavat avaimet:
+
+**"token"** Selaimen paikalliseen musitiin tallennettu, palvelimelta saatu käyttäjän autentikaatio token, Luodaan kirjautumisen yhteydessä.
+
+**"receiver"** viestin vastaanottajan id ***HUOM. Täytyy olla olemassa olevan käyttäjän id!***
+
+**"message"** lähetettävä viesti
+
+esim. ```{"token": myToken ,"receiver": 3, "message": "uusi viesti"
+}```
+
+Viestin lähettäjän id määräytyy autentikaatio tokenin mukaan.
+
+## Käyttäjät
+
+### Kirjautuminen ja rekisteröinti
+
+POST /api/login
+
+Tarkastaa JSON-objektin tiedoilla onko käyttäjä olemassa, mikäli ei luo uuden.
+
+Onnistuneessa kirjautumisessa palauttaa Autentikaatio token:in, joka on voimassa 1 tunnin ajan.
+
+JSONinssa täytyy olla seuraavat avaimet:
+
+**"email"** Käyttäjätilin sähköpostiosoite
+
+**"password"** Käyttäjätilin salasana
+
+esim. ```{"email": "Mikko.Mallikas@chat.fi", "password": "Salasana"}```
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
